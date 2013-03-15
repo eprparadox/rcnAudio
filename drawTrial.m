@@ -1,4 +1,4 @@
-function [dummy] = drawTrial(silent,stim,acquire)
+function [] = drawTrial(silent,stim,acquire)
 %%% this function will draw what an example trial will look like in the
 %%% rcnAudio paradigm
 
@@ -21,4 +21,3 @@ legend boxoff
 xlabel('TR','FontSize',20)
 ylabel('')
 
-dummy = 'hello!'
