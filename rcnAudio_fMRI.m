@@ -33,8 +33,10 @@ end
 
 
 %%% get TR
-TR = task_map.params.TR;
-        
+%TR = task_map.params.TR;
+TR = 2.2; % temp        
+TTL = '5%'; %%% keyboard code for TTL pulse is a 5
+
 
 % set up devices
 checkdevices = PsychHID('devices');
@@ -95,11 +97,11 @@ events.acquisition_onsets = [];
 
     
 
-%'Ready \nWaiting for scanner trigger'
-% DrawFormattedText(scr.textwin, readytext, 'center', scr.res(4)-150, scr.white);
-% Screen('CopyWindow', scr.textwin, scr.window, scr.rect, scr.rect);
-% Screen('Flip', scr.window);
-% Screen('FillRect', scr.textwin, scr.black, scr.rect);       % clear window for later use
+'Ready \nWaiting for scanner trigger'
+DrawFormattedText(scr.textwin, readytext, 'center', scr.res(4)-150, scr.white);
+Screen('CopyWindow', scr.textwin, scr.window, scr.rect, scr.rect);
+Screen('Flip', scr.window);
+Screen('FillRect', scr.textwin, scr.black, scr.rect);       % clear window for later use
     
 WaitSecs(3);
 % This Flip makes it gray for longer than black
@@ -111,7 +113,7 @@ sca
 
 %%%% %%% put wait for the go TTL pulse here
 while 1
-    [keyIsDown, secs, keyCode, deltaSecs] = KbCheck(device_forp);%device_k);
+    [keyIsDown, secs, keyCode, deltaSecs] = KbCheck(device_kb);%device_k);
     if keyIsDown
         keypress = KbName(find(keyCode));
         if isequal(keypress,'k')%TTL)
@@ -123,14 +125,21 @@ end
 
 
 %%% wait for the dummy scans to go by 
-WaitSecs(TR*task_map.params.dummies);
+%WaitSecs(TR*task_map.params.dummies);
+%%% update : i think there's no need 
+%%% wait fot the dummies to go by.  however,
+%%% dan's sequence starts with the acquision
+%%% therefore, we'll wait here for the acquision TRs
+%%% and then we'll be starting ontime with the 
+%%% silent TR
+WaitSecs(TR*task_map.params.acqTRs);
 
 %%%% start stimulus presentation
 % the task has started now, write down the time
 t0 = GetSecs;
-
+disp('start')
 for tr = 1:length(cTrial_map)
-    
+    disp('begin silence')
     %%% bulid stim (put current wave in the buffer)
     events.silent_onsets(end+1) = GetSecs;
     PsychPortAudio('FillBuffer',task_map.params.audiodevice,[cTrial_map(tr).wave; cTrial_map(tr).wave])
@@ -138,10 +147,12 @@ for tr = 1:length(cTrial_map)
     wakeup = WaitSecs('UntilTime',events.silent_onsets(end) + task_map.params.silentTRs * TR);
         
     %%% play stim
+    disp('playing stim')
     events.stim_onsets(end+1) = GetSecs;
     PsychPortAudio('Start', task_map.params.audiodevice, 1, 0, 1); % repetitions=1, start time=0s, 1=waitforsound & return onset time GetSecs;
     wakeup = WaitSecs('UntilTime',events.stim_onsets(end) + task_map.params.stimTRs * TR);
     
+    disp('aquiring')
     events.acquisition_onsets(end+1) = wakeup;
     WaitSecs('UntilTime',events.acquisition_onsets(end) + task_map.params.acqTRs * TR);
       
