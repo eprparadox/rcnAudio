@@ -138,13 +138,13 @@ WaitSecs(TR*task_map.params.acqTRs);
 % the task has started now, write down the time
 t0 = GetSecs;
 disp('start')
-for tr = 1:10%length(cTrial_map)
+for tr = 1:length(cTrial_map)
     disp('begin silence')
     %%% bulid stim (put current wave in the buffer)
     events.silent_onsets(end+1) = GetSecs;
     PsychPortAudio('FillBuffer',task_map.params.audiodevice,[cTrial_map(tr).wave; cTrial_map(tr).wave])
     
-    wakeup = WaitSecs('UntilTime',events.silent_onsets(end) + task_map.params.silentTRs * TR);
+    wakeup = WaitSecs('UntilTime',events.silent_onsets(end) + (task_map.params.silentTRs * TR)-.2);
         
     %%% play stim
     disp('playing stim')
