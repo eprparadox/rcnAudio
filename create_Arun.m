@@ -99,6 +99,7 @@ freqlist = [0 freqlist];
 
 %%% record
 task_map.params.frequencies = freqlist;
+energy = [];
     
 %%% k here we go
 if complexFlag ~= 0
@@ -150,9 +151,10 @@ if complexFlag ~= 0
             end
             
             trial_map(trial).abs_trial = trial; %redundant
-            trial_map(trial).wave = make_wave(this_freq, type, silentTRs, stimTRs, acqTRs, TR, fs, envelope);
+            [trial_map(trial).wave thise] = make_wave(this_freq, type, silentTRs, stimTRs, acqTRs, TR, fs, envelope);
             wave = trial_map(trial).wave;
-       
+            
+            %energy = [energy thise];
 %             
 %             disp([num2str(this_freq) ' : ' type])
 %             plot(wave(1:4000));

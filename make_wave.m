@@ -1,4 +1,4 @@
-function [wave] = make_wave(this_freq, type, silentTRs, stimTRs, acqTRs, TR, fs, envelope)
+function [wave, energy] = make_wave(this_freq, type, silentTRs, stimTRs, acqTRs, TR, fs, envelope)
 %%% this function will make all the waves for each trial for the above task
 %%% map.  waves will include silence before the stim, the stim, and the
 %%% acquisition slience after the stim
@@ -64,11 +64,27 @@ elseif strcmp(type,'oct')
     wave(end-length(envfall)+1:end) = envfall .* wave(end-length(envfall)+1:end);
 end
 
-%%% attenuate to prevent clipping 
+
+%%% attenuate to prevent clipping
 wave = wave * .8;
+
+%%% adjust for isoloudness contour using the iso226 curves (1 phon)
+[spl, spl_freq] = iso226(1);
+
+%%% find the closest frequency to the current frequency and find the
+%%% corresponding spl adjustment
+[val idx] = min(abs(freq_list - this_freq));
+
+the_spl = spl(idx);
+
+%%% 20
 
 %%% add the 10ms inter burst duration
 wave = [zeros(1,fs * burstRate*10^-3) wave zeros(1,fs * burstRate*10^-3)];
 wave = repmat(wave,1,10 * stimTRs * TR);
+energy = sum( wave.^2);
+disp(['this frequency: ' num2str(this_freq) ' max: ' num2str(max(wave)) '   min: ' num2str(min(wave)) ...
+    '   type: ' type '    energy: ' num2str(energy)])
+
 end
    
