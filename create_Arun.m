@@ -91,9 +91,12 @@ if complexFlag ~= 0
     nComplexTrials = floor(ntrials * .3);
 end
 
-%%% create list of center frequencies 
+%%% create list of center frequencies
 freqlist = round(2.^linspace(log2(fbounds(1)), log2(fbounds(2)),nfreq));
 
+if day == 2
+    freqlist = freqlist(1:2:end);
+end
 %%% add the silent trials 
 freqlist = [0 freqlist];
 
@@ -151,8 +154,11 @@ if complexFlag ~= 0
             end
             
             trial_map(trial).abs_trial = trial; %redundant
-            [trial_map(trial).wave thise] = make_wave(this_freq, type, silentTRs, stimTRs, acqTRs, TR, fs, envelope);
-            wave = trial_map(trial).wave;
+            [trial_map(trial).wave thise] = make_wave(this_freq, type, silentTRs, stimTRs, acqTRs, TR, fs, envelope,freqlist);
+            trial_map(trial).energy = thise;
+            
+            
+            %wave = trial_map(trial).wave;
             
             %energy = [energy thise];
 %             

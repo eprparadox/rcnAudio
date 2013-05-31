@@ -43,8 +43,11 @@ checkdevices = PsychHID('devices');
 for devicecounter = 1:length(checkdevices)
     if checkdevices(devicecounter).vendorID == 6171; %FORP (or ID 1240)
         device_forp = devicecounter;
-    elseif checkdevices(devicecounter).vendorID == 1452 && isequal(checkdevices(devicecounter).usageName,'Keyboard');
+    elseif checkdevices(devicecounter).vendorID == 1452 && isequal(checkdevices(devicecounter).usageName,'Keyboard') ...
+            && ~isequal(checkdevices(devicecounter).transport,'Bluetooth');
+        
         device_kb = devicecounter; % probably don't need this, but leave for now
+        
     end
 end
 
@@ -113,7 +116,7 @@ sca
 
 %%%% %%% put wait for the go TTL pulse here
 while 1
-    [keyIsDown, secs, keyCode, deltaSecs] = KbCheck(device_forp);%device_k);
+    [keyIsDown, secs, keyCode, deltaSecs] = KbCheck(device_forp);%device_kb);
     if keyIsDown
         keypress = KbName(find(keyCode));
         if isequal(keypress,TTL)%TTL)
