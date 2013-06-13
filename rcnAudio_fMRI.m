@@ -113,7 +113,7 @@ sca
 
 %%%% %%% put wait for the go TTL pulse here
 while 1
-    [keyIsDown, secs, keyCode, deltaSecs] = KbCheck(device_forp);%device_k);
+    [keyIsDown, secs, keyCode, deltaSecs] = KbCheck(device_forp);%device_forp);%device_kb);
     if keyIsDown
         keypress = KbName(find(keyCode));
         if isequal(keypress,TTL)%TTL)
