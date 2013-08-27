@@ -94,9 +94,9 @@ end
 %%% create list of center frequencies
 freqlist = round(2.^linspace(log2(fbounds(1)), log2(fbounds(2)),nfreq));
 
-if day == 2
-    freqlist = freqlist(1:2:end);
-end
+% if day == 2
+%     freqlist = freqlist(1:2:end);
+% end
 %%% add the silent trials 
 freqlist = [0 freqlist];
 
@@ -158,7 +158,11 @@ if complexFlag ~= 0
             trial_map(trial).energy = thise;
             
             
-            %wave = trial_map(trial).wave;
+            wave = trial_map(trial).wave;
+            if length(find(isnan(wave))) > 0
+                disp([' trial number ' num2str(trial) ' is a ' type ' trial of freq: ' num2str(this_freq) ' and has NaNs in the wave'])
+                pause(3)
+            end
             
             %energy = [energy thise];
 %             

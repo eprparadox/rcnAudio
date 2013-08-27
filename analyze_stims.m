@@ -3,7 +3,8 @@
 %%%% this function will analyze the stimuli in a created task map.  this
 %%%% includes creating a total power spectrogram for pure and complex tones
 %%%% and creating histograms over the types of all stim
-sub = '98-1';
+%sub = 'sequence_test-1';
+sub = 'jsrmlr_02-2';
 load([sub '_rcnAudio_task_map.mat'])
 trial_map = task_map.trial_map;
 
@@ -67,7 +68,7 @@ fmax = max(freqlist);
 n=length(big_wave);
 
 pwelch(big_wave,[],[],[],fs)
-xlim([.05 .8])
+%xlim([.05 .8])
 set(gca,'XScale','log')
 
 % %initialize outputs
