@@ -1,4 +1,4 @@
-function [wave] = make_wave(this_freq, type, silentTRs, stimTRs, acqTRs, TR, fs, envelope)
+function [wave, energy] = make_wave(this_freq, type, silentTRs, stimTRs, acqTRs, TR, fs, envelope,freq_list)
 %%% this function will make all the waves for each trial for the above task
 %%% map.  waves will include silence before the stim, the stim, and the
 %%% acquisition slience after the stim
@@ -64,11 +64,41 @@ elseif strcmp(type,'oct')
     wave(end-length(envfall)+1:end) = envfall .* wave(end-length(envfall)+1:end);
 end
 
-%%% attenuate to prevent clipping 
-wave = wave * .8;
+if this_freq ~= 0
+    %%% normalize
+    wave = wave / max(wave);
+    
+    %%% halve
+    wave = wave * .5;
+    
+    %%% adjust for isoloudness contour using the iso226 curves (1 phon)
+    [spl, spl_freq] = iso226(60);  % it's loud in there?
+    
+    %%% find the closest frequency to the current frequency and find the
+    %%% corresponding spl adjustment
+    [val idx] = min(abs(freq_list - this_freq));
+    
+    % the_spl = spl(idx);
+    
+    %%% just for kicks let's say the most we can boost it to is 1 (double)
+    %%% so we'll set that to the highest point in the isoloudness contour.
+    %%% everything else will be relative to that
+    
+    amp_map = spl' / spl(1); amp_map = amp_map * 2;
+    
+    %%% amplify
+    wave = wave * amp_map(idx);
+    
+end
 
 %%% add the 10ms inter burst duration
 wave = [zeros(1,fs * burstRate*10^-3) wave zeros(1,fs * burstRate*10^-3)];
 wave = repmat(wave,1,10 * stimTRs * TR);
+energy = sum( wave.^2);
+disp(['this frequency: ' num2str(this_freq) ' max: ' num2str(max(wave)) '   min: ' num2str(min(wave)) ...
+    '   type: ' type '    energy: ' num2str(energy)])
+
+
+
 end
    

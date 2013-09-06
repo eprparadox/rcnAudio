@@ -43,8 +43,11 @@ checkdevices = PsychHID('devices');
 for devicecounter = 1:length(checkdevices)
     if checkdevices(devicecounter).vendorID == 6171; %FORP (or ID 1240)
         device_forp = devicecounter;
-    elseif checkdevices(devicecounter).vendorID == 1452 && isequal(checkdevices(devicecounter).usageName,'Keyboard');
+    elseif checkdevices(devicecounter).vendorID == 1452 && isequal(checkdevices(devicecounter).usageName,'Keyboard') ...
+            && ~isequal(checkdevices(devicecounter).transport,'Bluetooth');
+        
         device_kb = devicecounter; % probably don't need this, but leave for now
+        
     end
 end
 
@@ -114,6 +117,7 @@ sca
 %%%% %%% put wait for the go TTL pulse here
 while 1
     [keyIsDown, secs, keyCode, deltaSecs] = KbCheck(device_forp);%device_forp);%device_kb);
+  
     if keyIsDown
         keypress = KbName(find(keyCode));
         if isequal(keypress,TTL)%TTL)
@@ -140,11 +144,13 @@ t0 = GetSecs;
 disp('start')
 for tr = 1:length(cTrial_map)
     disp('begin silence')
-    %%% bulid stim (put current wave in the buffer)
+    %%% build stim (put current wave in the buffer)
     events.silent_onsets(end+1) = GetSecs;
     PsychPortAudio('FillBuffer',task_map.params.audiodevice,[cTrial_map(tr).wave; cTrial_map(tr).wave])
     
-    wakeup = WaitSecs('UntilTime',events.silent_onsets(end) + (task_map.params.silentTRs * TR)-.2);
+    offset = .2;
+
+    wakeup = WaitSecs('UntilTime',events.silent_onsets(end) + (task_map.params.silentTRs * TR)-offset);
         
     %%% play stim
     disp('playing stim')
@@ -154,7 +160,20 @@ for tr = 1:length(cTrial_map)
     
     disp('aquiring')
     events.acquisition_onsets(end+1) = wakeup;
-    WaitSecs('UntilTime',events.acquisition_onsets(end) + task_map.params.acqTRs * TR);
+    WaitSecs('UntilTime',events.acquisition_onsets(end) + task_map.params.acqTRs * TR - .2);
+    
+    while 1
+        [keyIsDown, secs, keyCode, deltaSecs] = KbCheck(device_forp);
+        
+        if keyIsDown
+            keypress = KbName(find(keyCode));
+            if isequal(keypress,TTL)%TTL)
+                disp('TTL')
+                break
+            end
+        end
+    end
+    
       
 end
    

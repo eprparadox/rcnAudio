@@ -91,14 +91,18 @@ if complexFlag ~= 0
     nComplexTrials = floor(ntrials * .3);
 end
 
-%%% create list of center frequencies 
+%%% create list of center frequencies
 freqlist = round(2.^linspace(log2(fbounds(1)), log2(fbounds(2)),nfreq));
 
+% if day == 2
+%     freqlist = freqlist(1:2:end);
+% end
 %%% add the silent trials 
 freqlist = [0 freqlist];
 
 %%% record
 task_map.params.frequencies = freqlist;
+energy = [];
     
 %%% k here we go
 if complexFlag ~= 0
@@ -150,9 +154,17 @@ if complexFlag ~= 0
             end
             
             trial_map(trial).abs_trial = trial; %redundant
-            trial_map(trial).wave = make_wave(this_freq, type, silentTRs, stimTRs, acqTRs, TR, fs, envelope);
+            [trial_map(trial).wave thise] = make_wave(this_freq, type, silentTRs, stimTRs, acqTRs, TR, fs, envelope,freqlist);
+            trial_map(trial).energy = thise;
+            
+            
             wave = trial_map(trial).wave;
-       
+            if length(find(isnan(wave))) > 0
+                disp([' trial number ' num2str(trial) ' is a ' type ' trial of freq: ' num2str(this_freq) ' and has NaNs in the wave'])
+                pause(3)
+            end
+            
+            %energy = [energy thise];
 %             
 %             disp([num2str(this_freq) ' : ' type])
 %             plot(wave(1:4000));
