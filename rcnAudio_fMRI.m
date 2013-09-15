@@ -33,8 +33,8 @@ end
 
 
 %%% get TR
-%TR = task_map.params.TR;
-TR = 2.2; % temp        
+TR = task_map.params.TR;
+%TR = 2.2; % temp        
 TTL = '5%'; %%% keyboard code for TTL pulse is a 5
 
 
@@ -149,7 +149,8 @@ for tr = 1:length(cTrial_map)
     PsychPortAudio('FillBuffer',task_map.params.audiodevice,[cTrial_map(tr).wave; cTrial_map(tr).wave])
     
     offset = .2;
-
+    %offset = 0;
+    
     wakeup = WaitSecs('UntilTime',events.silent_onsets(end) + (task_map.params.silentTRs * TR)-offset);
         
     %%% play stim
@@ -160,7 +161,7 @@ for tr = 1:length(cTrial_map)
     
     disp('aquiring')
     events.acquisition_onsets(end+1) = wakeup;
-    WaitSecs('UntilTime',events.acquisition_onsets(end) + task_map.params.acqTRs * TR - .2);
+    WaitSecs('UntilTime',events.acquisition_onsets(end) + task_map.params.acqTRs * TR);
     
     while 1
         [keyIsDown, secs, keyCode, deltaSecs] = KbCheck(device_forp);
