@@ -4,7 +4,7 @@
 %%%% includes creating a total power spectrogram for pure and complex tones
 %%%% and creating histograms over the types of all stim
 %sub = 'sequence_test-1';
-sub = 'jsrmlr_02-2';
+sub = 'bm_02-2';
 load([sub '_rcnAudio_task_map.mat'])
 trial_map = task_map.trial_map;
 
