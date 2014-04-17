@@ -61,11 +61,15 @@ corr_ans = [0;0;0;1;0]; % what the user's answers should be, if all correct
 for i = 1:num_trials
     start_time = GetSecs();
     
-    % Show the stimulus
+    % Show the visual stimulus
     DrawFormattedText(scr.textwin, sample_text(i), 'center', 'center', scr.white);
     Screen('CopyWindow', scr.textwin, scr.window, scr.rect, scr.rect);
     Screen('Flip', scr.window);
     Screen('FillRect', scr.textwin, scr.black, scr.rect);
+    
+    % Build and play the audio stimulus
+    PsychPortAudio('FillBuffer',task_map.params.audiodevice,[cTrial_map(tr).wave; cTrial_map(tr).wave])
+    PsychPortAudio('Start', task_map.params.audiodevice, 1, 0, 1);
     
     % Loop until it is time to move on to the ISI, and look for a button 
     % press if the user has not already pressed during this stimulus
