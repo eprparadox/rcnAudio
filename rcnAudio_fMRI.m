@@ -41,7 +41,7 @@ TTL = '5%'; %%% keyboard code for TTL pulse is a 5
 % set up devices
 checkdevices = PsychHID('devices');
 for devicecounter = 1:length(checkdevices)
-    if checkdevices(devicecounter).vendorID == 6171; %FORP (or ID 1240)
+    if checkdevices(devicecounter).vendorID == 6171 && isequal(checkdevices(devicecounter).usageName,'Keyboard') %FORP (or ID 1240)
         device_forp = devicecounter;
     elseif checkdevices(devicecounter).vendorID == 1452 && isequal(checkdevices(devicecounter).usageName,'Keyboard') ...
             && ~isequal(checkdevices(devicecounter).transport,'Bluetooth');
@@ -114,10 +114,10 @@ WaitSecs(3);
 
 sca
 
-%%%% %%% put wait for the go TTL pulse here
+%%% %%% put wait for the go TTL pulse here
 while 1
     [keyIsDown, secs, keyCode, deltaSecs] = KbCheck(device_forp);%device_forp);%device_kb);
-  
+    disp('.')
     if keyIsDown
         keypress = KbName(find(keyCode));
         if isequal(keypress,TTL)%TTL)
@@ -127,6 +127,7 @@ while 1
     end
 end
 
+%KbWait([], 2);
 
 %%% wait for the dummy scans to go by 
 %WaitSecs(TR*task_map.params.dummies);
@@ -148,8 +149,8 @@ for tr = 1:length(cTrial_map)
     events.silent_onsets(end+1) = GetSecs;
     PsychPortAudio('FillBuffer',task_map.params.audiodevice,[cTrial_map(tr).wave; cTrial_map(tr).wave])
     
-    offset = .2;
-    %offset = 0;
+    %offset = .2;
+    offset = 0;
     
     wakeup = WaitSecs('UntilTime',events.silent_onsets(end) + (task_map.params.silentTRs * TR)-offset);
         
@@ -161,7 +162,7 @@ for tr = 1:length(cTrial_map)
     
     disp('aquiring')
     events.acquisition_onsets(end+1) = wakeup;
-    WaitSecs('UntilTime',events.acquisition_onsets(end) + task_map.params.acqTRs * TR);
+    WaitSecs('UntilTime',events.acquisition_onsets(end) + (task_map.params.acqTRs * TR-0.2));
     
     while 1
         [keyIsDown, secs, keyCode, deltaSecs] = KbCheck(device_forp);
@@ -173,17 +174,14 @@ for tr = 1:length(cTrial_map)
                 break
             end
         end
-    end
-    
-      
+    end          
 end
    
-
 
 task_map.real_timing_data(block).start = t0;
 task_map.real_timing_data(block).events = events;
 save([subject '-' day '_rcnAudio_task_map.mat'], 'task_map')
-
+disp('   ')
 
 
 close all;
