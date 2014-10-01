@@ -13,12 +13,12 @@ function [] = rcnAudio_fMRI(subject,day,block)
 
 subject = num2str(subject); day = num2str(day);
 
-d = dir([subject '-' day '_rcnAudio_task_map_original.mat']);
-if length(d) == 0
-    cp_cmd = ['!cp ' subject '-' day '_rcnAudio_task_map.mat ' ...
-        subject '-' day '_rcnAudio_task_map_original.mat'];
-    eval(cp_cmd)
-end
+%d = dir([subject '-' day '_rcnAudio_task_map_original.mat']);
+%if length(d) == 0
+%    cp_cmd = ['!cp ' subject '-' day '_rcnAudio_task_map.mat ' ...
+%        subject '-' day '_rcnAudio_task_map_original.mat'];
+%    eval(cp_cmd)
+%end
 %%% load task map
 load([subject '-' day '_rcnAudio_task_map.mat'])
 
