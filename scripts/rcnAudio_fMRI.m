@@ -13,12 +13,12 @@ function [] = rcnAudio_fMRI(subject,day,block)
 
 subject = num2str(subject); day = num2str(day);
 
-d = dir([subject '-' day '_rcnAudio_task_map_original.mat']);
-if length(d) == 0
-    cp_cmd = ['!cp ' subject '-' day '_rcnAudio_task_map.mat ' ...
-        subject '-' day '_rcnAudio_task_map_original.mat'];
-    eval(cp_cmd)
-end
+%d = dir([subject '-' day '_rcnAudio_task_map_original.mat']);
+%if length(d) == 0
+%    cp_cmd = ['!cp ' subject '-' day '_rcnAudio_task_map.mat ' ...
+%        subject '-' day '_rcnAudio_task_map_original.mat'];
+%    eval(cp_cmd)
+%end
 %%% load task map
 load([subject '-' day '_rcnAudio_task_map.mat'])
 
@@ -41,7 +41,7 @@ TTL = '5%'; %%% keyboard code for TTL pulse is a 5
 % set up devices
 checkdevices = PsychHID('devices');
 for devicecounter = 1:length(checkdevices)
-    if checkdevices(devicecounter).vendorID == 6171; %FORP (or ID 1240)
+    if checkdevices(devicecounter).vendorID == 6171 && isequal(checkdevices(devicecounter).usageName,'Keyboard') %FORP (or ID 1240)
         device_forp = devicecounter;
     elseif checkdevices(devicecounter).vendorID == 1452 && isequal(checkdevices(devicecounter).usageName,'Keyboard') ...
             && ~isequal(checkdevices(devicecounter).transport,'Bluetooth');
@@ -114,10 +114,10 @@ WaitSecs(3);
 
 sca
 
-%%%% %%% put wait for the go TTL pulse here
+%%% %%% put wait for the go TTL pulse here
 while 1
     [keyIsDown, secs, keyCode, deltaSecs] = KbCheck(device_forp);%device_forp);%device_kb);
-  
+    %disp('.')
     if keyIsDown
         keypress = KbName(find(keyCode));
         if isequal(keypress,TTL)%TTL)
@@ -127,6 +127,7 @@ while 1
     end
 end
 
+%KbWait([], 2);
 
 %%% wait for the dummy scans to go by 
 %WaitSecs(TR*task_map.params.dummies);
@@ -143,25 +144,30 @@ WaitSecs(TR*task_map.params.acqTRs);
 t0 = GetSecs;
 disp('start')
 for tr = 1:length(cTrial_map)
-    disp('begin silence')
+    disp(['begin silence trial: ' num2str(tr) ' :: time = ' ...
+        num2str(GetSecs - t0)])
+    
     %%% build stim (put current wave in the buffer)
     events.silent_onsets(end+1) = GetSecs;
-    PsychPortAudio('FillBuffer',task_map.params.audiodevice,[cTrial_map(tr).wave; cTrial_map(tr).wave])
+    PsychPortAudio('FillBuffer',task_map.params.audiodevice,[cTrial_map(tr).wave; cTrial_map(tr).wave]);
     
-    offset = .2;
-    %offset = 0;
+    %offset = .2;
+    offset = 0;
     
     wakeup = WaitSecs('UntilTime',events.silent_onsets(end) + (task_map.params.silentTRs * TR)-offset);
         
     %%% play stim
-    disp('playing stim')
+    disp(['playing ' task_map.trial_map(tr).type ' stim :: cf = ' ...
+        num2str(task_map.trial_map(tr).frequency) ' :: time: ' ...
+        num2str(GetSecs - t0)])
+    
     events.stim_onsets(end+1) = GetSecs;
     PsychPortAudio('Start', task_map.params.audiodevice, 1, 0, 1); % repetitions=1, start time=0s, 1=waitforsound & return onset time GetSecs;
     wakeup = WaitSecs('UntilTime',events.stim_onsets(end) + task_map.params.stimTRs * TR);
     
-    disp('aquiring')
+    disp(['aquiring BOLD :: time: ' num2str(GetSecs - t0)])
     events.acquisition_onsets(end+1) = wakeup;
-    WaitSecs('UntilTime',events.acquisition_onsets(end) + task_map.params.acqTRs * TR);
+    WaitSecs('UntilTime',events.acquisition_onsets(end) + ((task_map.params.acqTRs * TR) + 0 - 0.1)); %-0.1));
     
     while 1
         [keyIsDown, secs, keyCode, deltaSecs] = KbCheck(device_forp);
@@ -174,16 +180,15 @@ for tr = 1:length(cTrial_map)
             end
         end
     end
-    
-      
+    disp('   ')
+    %disp(['detected break out TTL at time: ' num2str(GetSecs - t0)])
 end
    
-
 
 task_map.real_timing_data(block).start = t0;
 task_map.real_timing_data(block).events = events;
 save([subject '-' day '_rcnAudio_task_map.mat'], 'task_map')
-
+disp('   ')
 
 
 close all;

@@ -94,9 +94,9 @@ end
 %%% create list of center frequencies
 freqlist = round(2.^linspace(log2(fbounds(1)), log2(fbounds(2)),nfreq));
 
-% if day == 2
-%     freqlist = freqlist(1:2:end);
-% end
+if day == 2
+    freqlist = freqlist(1:2:end);
+end
 %%% add the silent trials 
 freqlist = [0 freqlist];
 
