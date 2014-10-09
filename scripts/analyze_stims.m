@@ -5,7 +5,7 @@
 %%%% and creating histograms over the types of all stim
 %sub = 'sequence_test-1';
 %sub = 'bm_02-2';
-sub = '99-1'
+sub = 'bm_01-1'
 load([sub '_rcnAudio_task_map.mat'])
 trial_map = task_map.trial_map;
 
@@ -19,10 +19,16 @@ oct_hist = []; oct = 1;
 big_wave = []; big_mj3_wave = []; big_mn3_wave = [];
 big_mj5_wave = []; big_mn5_wave = []; big_oct_wave = [];
 
+%single_trial = length(trial_map(1).wave);
+%big_wave = zeros(1,single_trial*length(trial_map));
+
 for tr = 1:length(trial_map)
+    %tedge = single_trial * tr;
+    %ledge = tedge - single_trial;
     if strcmp(trial_map(tr).type,'pure')
         pure_hist(end+1) = trial_map(tr).frequency;
         big_wave = [big_wave trial_map(tr).wave];
+%        big_wave(ledge:tedge) = trial_map(tr).wave;
         
     elseif strcmp(trial_map(tr).type,'mj3rd')
         complex_hist(1) = mj3;
