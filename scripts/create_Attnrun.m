@@ -14,77 +14,10 @@ catch
 end
 
 
-%%%     
-
-if nargin >= 10;
-    subject = sub;
-    disp(['please note, you will be saving a UNIQUE taskmap due to ' ...
-        'randomization.  check that this is the map you want before future use.'])
-    task_map.params.day = day;
-end
-
-%%% get the parameters of the task map
-%nblocks = input('please enter the number of blocks: ');
-
-% fbounds = input(['please enter the two element vector indicating the ' ...
-%     'lowest and highest frequency to be used in the stimulus set: ']);
-% 
-% nfreq = input(['please enter the number of frequencies ' ...
-%     'you would like to span the space from ' num2str(fbounds(1))...
-%     'Hz to ' num2str(fbounds(2)) 'Hz: ']);
-% 
-% ntrials = input(['please enter the number of trials you can tolerate ' ...
-%     '(~15s per trial default => 220 trials = 55mins): ']);
-% 
-% TR = input('plese enter the TR: ');
-% 
-% silentTRs = input(['please enter the number of silent TRs: ']);
-% 
-% stimTRs = input(['please enter the number of stim TRs (these will be ' ...
-%     'when the stimuli are presented): ']);
-% 
-% acqTRs = input('please enter the number of acquisition TRs : ');
-% 
-% checkerFlag = input(['would you like the stimuli to be checkerboards ' ...
-%     ' or pure tones (enter c or p): '],'s');
-% 
-% complexFlag = input(['what level of complex stimuli would you like to include? enter : \n' ...
-%  '0 for only simple channels \n2 for major and minor 3rds \n4 for 3rds and 5ths \n' ...
-%  '5 for 3rds 5ths and octaves \n:  ']);
-
-
 disp('  ');disp('  ');disp('   ')
 disp('creating trials ...'); pause(2)
 disp('  ');disp('  ');disp('   ')
 
-%%% initialze task map with some stuff
-task_map.params.fbounds.high = fbounds(2);
-task_map.params.fbounds.low = fbounds(1);
-
-task_map.params.silentTRs = silentTRs;
-task_map.params.stimTRs = stimTRs;
-task_map.params.acqTRs = acqTRs;
-task_map.params.TR = TR;
-task_map.params.TTLbutton = 34;      % corresponds to button "5" (through FORP system)
-
-%%% dummy TRs
-task_map.params.dummies = 5;
-
-% hard code for now
-fs = 44100;
-envelope = 20; % ms
-envelope_shape = 'exponential';
-
-task_map.params.sampling_rate = fs;
-task_map.params.envelope.dur = envelope;
-task_map.params.envelope.shape = envelope_shape;
-task_map.params.subject = subject;
-
-
-%%% describe possible complex trial states 
-cStates = {{'mj3rd','mn3rd'},{'mj3rd','mn3rd','mj5th','mn5th'},...
-    {'mj3rd','mn3rd','mj5th','mn5th','oct'}};
-cIdx = [0 1 0 2 3];
 
 %%% ok number of blocks is an even division of the number of trials into
 %%% tenths
