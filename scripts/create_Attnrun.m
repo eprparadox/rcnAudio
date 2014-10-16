@@ -19,12 +19,59 @@ disp('creating trials ...'); pause(2)
 disp('  ');disp('  ');disp('   ')
 
 
-%%% ok number of blocks is an even division of the number of trials into
-%%% tenths
-nblocks = 10;
+% get number of blocks
+nblocks = task_map.trial_map(end).block;
 
-%= floor(ntrials/10);
+% odd blocks are visual task
+for b:length(task_map.trial_map)
+    bl = task_map.trial_map(b).block;
+    if mod(b1,2)
+        task_map.trial_map(bl).task_type = 'visual';
+    else
+        task_map.trial_map(bl).task_type = 'audio';
+    end
+end
 
+
+% go block by block and alter existing waves to create auditory task
+for i = 1:length(task_map.trial_map);
+    if strcmp(task_map.trial_map,'audio')
+        
+        % get burst primers
+        [burst_centers burst_edges nbursts] = burst_primer(the_wave);
+        
+        % get the leading and lagging edgest.  back up and move forward 1
+        % to get the zero point of the wave
+        burst_leads = burst_edges(1:2:end) - 1;
+        burst_lags = burst_edges(2:2:end) + 1;
+        ibi = burst_leads(2) - burst_lags(1);
+        
+        % move the burst on 80 percent of the trials, so if rand > .2
+        if rand(1) > .2
+            
+            % now choose a random burst in the last three quarters (ie if
+            % there are 100 bursts move one in the range 25:99)
+            bto_move = round((0.75*nbursts) * rand(1)) + (0.25 * nbursts);
+            
+            % grab that burst and move it
+            the_wave = task_map.trial_map(i).wave;
+            
+            aidx = burst_leads(bto_move) + 1; bidx = burst_lags(bto_move) - 1;
+            
+            % additional alterations to the burst can easily be made here
+            burst = the_wave(aidx:bidx);
+            
+            % zero and move
+            the_wave(aidx:bidx) = 0;
+            the_wave(aidx - floor(ibi/2):bidx - floor(ibi/2)) = burst;
+            
+            % alter
+            task_map.trial_map(i).wave = the_wave;
+            
+        end    
+    end
+
+[burst_centers burst_edges nbursts] = burst_primer(the_wave);
 
 if complexFlag ~= 0
     %%% 70% of these will be pure and 30% will be complex so that we can
@@ -120,13 +167,8 @@ if complexFlag ~= 0
 end
 
 
-%%% put everything in the task_map
-task_map.trial_map = trial_map;
-
-if nargin >= 10
-   disp(['saving task_map as ' num2str(subject) '-' num2str(day) '_rcnAudio_task_map'])
-   save([num2str(subject) '-' num2str(day) '_rcnAudio_task_map.mat'],'task_map')
-end
+disp(['saving task_map as ' num2str(subject) '-attn_rcnAudio_task_map'])
+save([num2str(subject) '-attn_rcnAudio_task_map.mat'],'task_map')
 
 
 
