@@ -1,6 +1,5 @@
 function task_map = create_Arun(sub)
 
-
 %%% this m file will create trial maps.  for the attentional run of the rcnAudio task 
 %%% the user will specify nothing as the script will load up the 1st days'
 %%% task_map to ensure that the same stimuli are used 
@@ -18,6 +17,9 @@ disp('  ');disp('  ');disp('   ')
 disp('creating trials ...'); pause(2)
 disp('  ');disp('  ');disp('   ')
 
+% freq alteration list
+alt = [0.0035 0.0045 0.0055 0.0065 0.0075 ...
+    -0.0035 -0.0045 -0.0055 -0.0065 -0.0075];
 
 % get number of blocks
 nblocks = task_map.trial_map(end).block;
@@ -35,19 +37,24 @@ end
 
 % go block by block and alter existing waves to create auditory task
 for i = 1:length(task_map.trial_map);
-    if strcmp(task_map.trial_map,'audio')
+    if strcmp(task_map.trial_map(i),'audio')
+        
+        % get wave and freq
+        the_wave = task_map.trial_map(i).wave;
+        the_freq = task_map.trial_map(i).frequency;
+        the_type = task_map.trial_map(i).type;
         
         % get burst primers
         [burst_centers burst_edges nbursts] = burst_primer(the_wave);
         
-        % get the leading and lagging edgest.  back up and move forward 1
+        % get the leading and lagging edges.  back up and move forward 1
         % to get the zero point of the wave
         burst_leads = burst_edges(1:2:end) - 1;
         burst_lags = burst_edges(2:2:end) + 1;
         ibi = burst_leads(2) - burst_lags(1);
         
-        % move the burst on 80 percent of the trials, so if rand > .2
-        if rand(1) > .2
+        % move the burst or alter the burst frequency on 80 percent of the trials, so if rand > .2
+        if rand(1) > 0.2
             
             % now choose a random burst in the last three quarters (ie if
             % there are 100 bursts move one in the range 25:99)
@@ -55,21 +62,49 @@ for i = 1:length(task_map.trial_map);
             
             % grab that burst and move it
             the_wave = task_map.trial_map(i).wave;
-            
             aidx = burst_leads(bto_move) + 1; bidx = burst_lags(bto_move) - 1;
             
             % additional alterations to the burst can easily be made here
             burst = the_wave(aidx:bidx);
             
-            % zero and move
-            the_wave(aidx:bidx) = 0;
-            the_wave(aidx - floor(ibi/2):bidx - floor(ibi/2)) = burst;
             
-            % alter
-            task_map.trial_map(i).wave = the_wave;
+            if rand(1) > 0.75 && strcmp(type,'pure')
+                
+                % alter frequency
+                from_ref = datasample(alt,1);
+                the_freq = the_freq + the_freq * from_ref;
+                burst = make_burst(
+                
+            else
+                % alter rhythm
+                % zero and move
+                the_wave(aidx:bidx) = 0;
+                the_wave(aidx - floor(ibi/2):bidx - floor(ibi/2)) = burst;
+                
+                % alter
+                task_map.trial_map(i).wave = the_wave;
+            end
+        end
+        
+    elseif strcmp(task_map.trial_map,'visual')
+        % 75% include targets
+        if rand(1) > 0.80
+            % create target trial
             
-        end    
-    end
+        else 
+            
+            if rand(1) > 0.5
+                %create lure trial
+            elseif rand(1) < 0.5
+                % create control trial
+            end
+        end
+            
+        
+        
+        
+    end    
+end
 
 [burst_centers burst_edges nbursts] = burst_primer(the_wave);
 
@@ -93,6 +128,8 @@ freqlist = [0 freqlist];
 task_map.params.frequencies = freqlist;
 energy = [];
     
+
+
 %%% k here we go
 if complexFlag ~= 0
     
