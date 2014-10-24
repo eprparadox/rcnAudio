@@ -66,14 +66,14 @@ for i = 1:length(task_map.trial_map);
             
             % additional alterations to the burst can easily be made here
             burst = the_wave(aidx:bidx);
-            
-            
+                        
             if rand(1) > 0.75 && strcmp(type,'pure')
                 
                 % alter frequency
                 from_ref = datasample(alt,1);
                 the_freq = the_freq + the_freq * from_ref;
-                burst = make_burst(
+                burst = make_burst(the_freq,task_map.params.frequencies);
+                the_wave(aidx:bidx) = burst;
                 
             else
                 % alter rhythm

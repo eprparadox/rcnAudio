@@ -1,5 +1,5 @@
 % small part of the make_wave script isolated to just return a burst
-function [burst] = make_burst(this_freq)
+function [wave] = make_burst(this_freq,freq_list)
 
 fs = 44100;                    % sampling rate - might as well be CD quality
 dt = 1/fs;                     % seconds per sample
@@ -16,6 +16,7 @@ envrise = etime .* etime; envrise = envrise/max(envrise);
 envfall = fliplr(envrise);
 
 wave = sin(2*pi*this_freq*t);
+
 %%% add rise and fall
 wave(1:length(envrise)) = envrise .* wave(1:length(envrise));
 wave(end-length(envfall)+1:end) = envfall .* wave(end-length(envfall)+1:end);
