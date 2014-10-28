@@ -21,6 +21,9 @@ disp('  ');disp('  ');disp('   ')
 alt = [0.0035 0.0045 0.0055 0.0065 0.0075 ...
     -0.0035 -0.0045 -0.0055 -0.0065 -0.0075];
 
+% alphabet
+alphabet=char('a'+(1:26)-1);
+
 % get number of blocks
 nblocks = task_map.trial_map(end).block;
 
@@ -90,6 +93,7 @@ for i = 1:length(task_map.trial_map);
         % 75% include targets
         if rand(1) > 0.80
             % create target trial
+            
             
         else 
             
