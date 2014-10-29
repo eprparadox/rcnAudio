@@ -8,6 +8,7 @@ burstDur = 80;                  % ms
 t = [0:dt:(burstDur*10^-3)];
 
 %%% 20ms envelope
+envelope = 20; % ms
 %%% 40ms stim
 
 %%% create envelope rise and fall
